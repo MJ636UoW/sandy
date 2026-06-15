@@ -1667,15 +1667,23 @@ body.cursor-dark-hover #custom-cursor-ring {
     pointer-events: none;
     z-index: 5;
   }
-  .floating-tag:nth-child(1) { top: 20%; left: 8%; }
-  .floating-tag:nth-child(2) { top: 48%; left: 5%; }
-  .floating-tag:nth-child(3) { top: 15%; left: 52%; }
-  .floating-tag:nth-child(4) { top: 82%; left: 40%; }
-  .floating-tag:nth-child(5) { top: 52%; left: 55%; }
+  .floating-tag:nth-child(1) { top: 62%; left: 8%; }
+  .floating-tag:nth-child(2) { top: 75%; left: 55%; }
+  .floating-tag:nth-child(3) { top: 60%; left: 58%; }
+  .floating-tag:nth-child(4) { top: 86%; left: 12%; }
+  .floating-tag:nth-child(5) { top: 70%; left: 10%; }
   .floating-tag span {
     padding: 6px 14px;
     font-size: 10px;
+    filter: none !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    opacity: 0.95 !important;
   }
+  .depth-1 span { scale: 0.95; filter: none !important; opacity: 0.85 !important; }
+  .depth-2 span { scale: 1.0; filter: none !important; opacity: 0.95 !important; }
+  .depth-3 span { scale: 1.05; filter: none !important; opacity: 1.0 !important; border-color: rgba(184, 255, 0, 0.45) !important; }
   .rotating-badge-wrapper {
     bottom: -20px;
     right: 20px;
