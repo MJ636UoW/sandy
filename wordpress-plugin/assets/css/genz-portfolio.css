@@ -189,6 +189,8 @@ body.wp-cursor-hover #wp-custom-cursor-ring {
   position: absolute;
   pointer-events: auto;
   will-change: transform;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .wp-floating-tag span {
@@ -226,7 +228,26 @@ body.wp-cursor-hover #wp-custom-cursor-ring {
   .wp-hero-split-left { width: 100%; min-height: 60vh; padding: 100px 40px 40px; }
   .wp-hero-split-right { width: 100%; height: 40vh; }
   .wp-diagonal-mask { width: 100%; left: 0; clip-path: polygon(0 var(--wipe-val, 15%), 100% 0, 100% 100%, 0% 100%); -webkit-clip-path: polygon(0 var(--wipe-val, 15%), 100% 0, 100% 100%, 0% 100%); }
-  .wp-floating-tags-container { display: none; }
+  .wp-floating-tags-container {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .wp-floating-tag:nth-child(1) { top: 20%; left: 8%; }
+  .wp-floating-tag:nth-child(2) { top: 48%; left: 5%; }
+  .wp-floating-tag:nth-child(3) { top: 15%; left: 52%; }
+  .wp-floating-tag:nth-child(4) { top: 82%; left: 40%; }
+  .wp-floating-tag:nth-child(5) { top: 52%; left: 55%; }
+  .wp-floating-tag span {
+    padding: 6px 14px;
+    font-size: 10px;
+  }
 }
 
 /* ==========================================================================

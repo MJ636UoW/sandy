@@ -547,6 +547,8 @@ body.cursor-dark-hover #custom-cursor-ring {
   position: absolute;
   pointer-events: auto;
   will-change: transform;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .floating-tag span {
@@ -1655,7 +1657,24 @@ body.cursor-dark-hover #custom-cursor-ring {
     -webkit-clip-path: polygon(0 var(--wipe-val, 15%), 100% 0, 100% 100%, 0% 100%);
   }
   .floating-tags-container {
-    display: none; /* Disable complex mouse hover on mobile screen sizes */
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .floating-tag:nth-child(1) { top: 20%; left: 8%; }
+  .floating-tag:nth-child(2) { top: 48%; left: 5%; }
+  .floating-tag:nth-child(3) { top: 15%; left: 52%; }
+  .floating-tag:nth-child(4) { top: 82%; left: 40%; }
+  .floating-tag:nth-child(5) { top: 52%; left: 55%; }
+  .floating-tag span {
+    padding: 6px 14px;
+    font-size: 10px;
   }
   .rotating-badge-wrapper {
     bottom: -20px;

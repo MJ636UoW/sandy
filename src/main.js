@@ -435,6 +435,31 @@
       tag.style.left = '';
       tag.style.top = '';
     });
+
+    tag.addEventListener('click', (e) => {
+      e.preventDefault();
+      const mapTagToService = (tagText) => {
+        const text = tagText.toLowerCase();
+        if (text.includes('photo')) return 0;
+        if (text.includes('video')) return 1;
+        if (text.includes('drone')) return 2;
+        if (text.includes('story') || text.includes('edit')) return 3;
+        if (text.includes('creative') || text.includes('director') || text.includes('brand')) return 4;
+        return -1;
+      };
+      const serviceCards = document.querySelectorAll('.service-card');
+      const targetIndex = mapTagToService(tag.textContent);
+      if (targetIndex !== -1 && serviceCards[targetIndex]) {
+        serviceCards[targetIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Spotlight it immediately
+        serviceCards.forEach(c => c.classList.remove('in-focus'));
+        serviceCards[targetIndex].classList.add('in-focus');
+        
+        // Rumble haptic feedback
+        if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
+      }
+    });
   });
 
   // ---------------------------------------------------------

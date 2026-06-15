@@ -154,6 +154,35 @@
       requestAnimationFrame(animateFloating);
     };
 
+    // Bind click handlers for tag navigation to services
+    tags.on('click', function(e) {
+      e.preventDefault();
+      const tagText = $(this).text().trim().toLowerCase();
+      
+      const mapTagToServiceIndex = (text) => {
+        if (text.includes('photo')) return 0;
+        if (text.includes('video')) return 1;
+        if (text.includes('drone')) return 2;
+        if (text.includes('story') || text.includes('edit')) return 3;
+        if (text.includes('creative') || text.includes('director') || text.includes('brand')) return 4;
+        return -1;
+      };
+
+      const targetIndex = mapTagToServiceIndex(tagText);
+      const wpServiceCards = $('.wp-service-card');
+      
+      if (targetIndex !== -1 && wpServiceCards.length > targetIndex) {
+        wpServiceCards.eq(targetIndex)[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Spotlight it
+        wpServiceCards.removeClass('in-focus');
+        wpServiceCards.eq(targetIndex).addClass('in-focus');
+        
+        // Rumble haptic feedback
+        if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
+      }
+    });
+
     animateFloating();
   };
 
