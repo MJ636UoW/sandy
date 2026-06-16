@@ -1073,6 +1073,40 @@ body.cursor-dark-hover #custom-cursor-ring {
   transform: rotate(90deg);
 }
 
+.lightbox-prev, .lightbox-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  display: none; /* Hidden by default, shown dynamically for galleries */
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  z-index: 100000;
+}
+
+.lightbox-prev:hover, .lightbox-next:hover {
+  background: var(--accent);
+  color: #000000;
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.lightbox-prev {
+  left: 40px;
+}
+
+.lightbox-next {
+  right: 40px;
+}
+
 .lightbox-content {
   max-width: 80%;
   max-height: 70%;

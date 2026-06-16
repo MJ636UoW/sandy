@@ -5,6 +5,91 @@
 (function($) {
   'use strict';
 
+  let currentGalleryItems = [];
+  let currentGalleryIndex = 0;
+
+  const initLightboxElements = () => {
+    if ($('#wp-portfolio-lightbox').length === 0) {
+      $('body').append(`
+        <div id="wp-portfolio-lightbox" class="lightbox-overlay">
+          <button class="lightbox-close">×</button>
+          <button class="lightbox-prev">←</button>
+          <button class="lightbox-next">→</button>
+          <div class="lightbox-content"></div>
+          <div class="lightbox-details">
+            <span class="lightbox-category"></span>
+            <h4 class="lightbox-title"></h4>
+          </div>
+        </div>
+      `);
+    }
+
+    const lightbox = $('#wp-portfolio-lightbox');
+    const lightboxContent = lightbox.find('.lightbox-content');
+    const lightboxClose = lightbox.find('.lightbox-close');
+    const lightboxPrev = lightbox.find('.lightbox-prev');
+    const lightboxNext = lightbox.find('.lightbox-next');
+    const lightboxCat = lightbox.find('.lightbox-category');
+    const lightboxTitle = lightbox.find('.lightbox-title');
+
+    const updateLightbox = () => {
+      if (!lightboxContent.length || currentGalleryItems.length === 0) return;
+      const item = currentGalleryItems[currentGalleryIndex];
+
+      lightboxContent.empty();
+
+      if (item.videoSrc) {
+        lightboxContent.append(`<video src="${item.videoSrc}" controls autoplay loop></video>`);
+      } else if (item.src) {
+        lightboxContent.append(`<img src="${item.src}" alt="${item.title}">`);
+      }
+
+      lightboxCat.text(item.category);
+      lightboxTitle.text(item.title);
+
+      if (currentGalleryItems.length > 1) {
+        lightboxPrev.css('display', 'flex');
+        lightboxNext.css('display', 'flex');
+      } else {
+        lightboxPrev.css('display', 'none');
+        lightboxNext.css('display', 'none');
+      }
+    };
+
+    if (!lightbox.data('init-events')) {
+      lightbox.data('init-events', true);
+
+      lightboxClose.on('click', () => {
+        lightbox.removeClass('active');
+        lightboxContent.empty();
+      });
+
+      lightboxPrev.on('click', (e) => {
+        e.stopPropagation();
+        currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryItems.length) % currentGalleryItems.length;
+        updateLightbox();
+      });
+
+      lightboxNext.on('click', (e) => {
+        e.stopPropagation();
+        currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryItems.length;
+        updateLightbox();
+      });
+
+      lightbox.on('click', function(e) {
+        if (e.target === this || $(e.target).hasClass('lightbox-content')) {
+          lightbox.removeClass('active');
+          lightboxContent.empty();
+        }
+      });
+    }
+
+    return {
+      lightbox,
+      updateLightbox
+    };
+  };
+
   // Mouse coordinate tracking for global interactions
   const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
   
@@ -280,27 +365,7 @@
     });
 
     // Lightbox modal setup
-    const itemsWrapper = $scope.find('.wp-portfolio-grid');
-    
-    // Add dynamic lightbox if not present on page
-    if ($('#wp-portfolio-lightbox').length === 0) {
-      $('body').append(`
-        <div id="wp-portfolio-lightbox" class="lightbox-overlay">
-          <button class="lightbox-close">×</button>
-          <div class="lightbox-content"></div>
-          <div class="lightbox-details">
-            <span class="lightbox-category"></span>
-            <h4 class="lightbox-title"></h4>
-          </div>
-        </div>
-      `);
-    }
-
-    const lightbox = $('#wp-portfolio-lightbox');
-    const lightboxContent = lightbox.find('.lightbox-content');
-    const lightboxClose = lightbox.find('.lightbox-close');
-    const lightboxCat = lightbox.find('.lightbox-category');
-    const lightboxTitle = lightbox.find('.lightbox-title');
+    const { lightbox, updateLightbox } = initLightboxElements();
 
     items.on('click', function() {
       const item = $(this);
@@ -309,29 +374,10 @@
       const title = item.data('title');
       const category = item.data('category');
 
-      lightboxContent.empty();
-
-      if (videoSrc) {
-        lightboxContent.append(`<video src="${videoSrc}" controls autoplay loop></video>`);
-      } else if (src) {
-        lightboxContent.append(`<img src="${src}" alt="${title}">`);
-      }
-
-      lightboxCat.text(category);
-      lightboxTitle.text(title);
+      currentGalleryItems = [{ src, videoSrc, title, category }];
+      currentGalleryIndex = 0;
+      updateLightbox();
       lightbox.addClass('active');
-    });
-
-    lightboxClose.on('click', () => {
-      lightbox.removeClass('active');
-      lightboxContent.empty();
-    });
-
-    lightbox.on('click', function(e) {
-      if (e.target === this || $(e.target).hasClass('lightbox-content')) {
-        lightbox.removeClass('active');
-        lightboxContent.empty();
-      }
     });
   };
 
@@ -349,12 +395,38 @@
 
     grid.find('.wp-service-flood-bg').css('background-color', floodColor);
     
+    const { lightbox, updateLightbox } = initLightboxElements();
+
     grid.find('.wp-service-card').each(function() {
       const card = $(this);
       card.removeClass('wp-flood-down wp-flood-right wp-flood-left');
       if (direction !== 'up') {
         card.addClass(`wp-flood-${direction}`);
       }
+
+      // Gallery trigger click
+      card.on('click', function(e) {
+        const mediaStr = card.attr('data-gallery-media');
+        if (!mediaStr) return;
+
+        const title = card.attr('data-gallery-title') || 'Gallery';
+        const category = card.attr('data-gallery-cat') || 'Works';
+        const mediaUrls = mediaStr.split(',');
+
+        currentGalleryItems = mediaUrls.map((url, idx) => {
+          const isVideo = url.endsWith('.mp4') || url.includes('mixkit.co');
+          return {
+            src: isVideo ? '' : url,
+            videoSrc: isVideo ? url : '',
+            title: `${title} (${idx + 1}/${mediaUrls.length})`,
+            category: category
+          };
+        });
+
+        currentGalleryIndex = 0;
+        updateLightbox();
+        lightbox.addClass('active');
+      });
     });
 
     $scope.css('--services-speed', `${speed}ms`);

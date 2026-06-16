@@ -531,12 +531,49 @@
     });
   });
 
-  // Lightbox implementation
+  // Lightbox implementation (with gallery support)
   const lightbox = document.getElementById('portfolio-lightbox');
   const lightboxContent = lightbox ? lightbox.querySelector('.lightbox-content') : null;
   const lightboxClose = lightbox ? lightbox.querySelector('.lightbox-close') : null;
+  const lightboxPrev = lightbox ? lightbox.querySelector('.lightbox-prev') : null;
+  const lightboxNext = lightbox ? lightbox.querySelector('.lightbox-next') : null;
   const lightboxCat = lightbox ? lightbox.querySelector('.lightbox-category') : null;
   const lightboxTitle = lightbox ? lightbox.querySelector('.lightbox-title') : null;
+
+  let currentGalleryItems = [];
+  let currentGalleryIndex = 0;
+
+  const updateLightbox = () => {
+    if (!lightboxContent || currentGalleryItems.length === 0) return;
+    const item = currentGalleryItems[currentGalleryIndex];
+
+    lightboxContent.innerHTML = ''; // Clear container
+
+    if (item.videoSrc) {
+      const videoEl = document.createElement('video');
+      videoEl.src = item.videoSrc;
+      videoEl.controls = true;
+      videoEl.autoplay = true;
+      videoEl.loop = true;
+      lightboxContent.appendChild(videoEl);
+    } else if (item.src) {
+      const imgEl = document.createElement('img');
+      imgEl.src = item.src;
+      lightboxContent.appendChild(imgEl);
+    }
+
+    if (lightboxCat) lightboxCat.textContent = item.category;
+    if (lightboxTitle) lightboxTitle.textContent = item.title;
+
+    // Show/hide navigation arrows
+    if (currentGalleryItems.length > 1) {
+      if (lightboxPrev) lightboxPrev.style.display = 'flex';
+      if (lightboxNext) lightboxNext.style.display = 'flex';
+    } else {
+      if (lightboxPrev) lightboxPrev.style.display = 'none';
+      if (lightboxNext) lightboxNext.style.display = 'none';
+    }
+  };
 
   portfolioItems.forEach(item => {
     // Play video on hover
@@ -556,28 +593,57 @@
       const title = item.getAttribute('data-title');
       const category = item.getAttribute('data-category');
 
-      if (lightboxContent) {
-        lightboxContent.innerHTML = ''; // Clear container
+      currentGalleryItems = [{ src, videoSrc, title, category }];
+      currentGalleryIndex = 0;
+      updateLightbox();
 
-        if (videoSrc) {
-          const videoEl = document.createElement('video');
-          videoEl.src = videoSrc;
-          videoEl.controls = true;
-          videoEl.autoplay = true;
-          videoEl.loop = true;
-          lightboxContent.appendChild(videoEl);
-        } else if (src) {
-          const imgEl = document.createElement('img');
-          imgEl.src = src;
-          lightboxContent.appendChild(imgEl);
-        }
-      }
-
-      if (lightboxCat) lightboxCat.textContent = category;
-      if (lightboxTitle) lightboxTitle.textContent = title;
       if (lightbox) lightbox.classList.add('active');
     });
   });
+
+  // Services cards gallery trigger
+  const serviceCards = document.querySelectorAll('.service-card');
+  serviceCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      const mediaStr = card.getAttribute('data-gallery-media');
+      if (!mediaStr) return;
+
+      const title = card.getAttribute('data-gallery-title') || 'Gallery';
+      const category = card.getAttribute('data-gallery-cat') || 'Works';
+      const mediaUrls = mediaStr.split(',');
+
+      currentGalleryItems = mediaUrls.map((url, idx) => {
+        const isVideo = url.endsWith('.mp4') || url.includes('mixkit.co');
+        return {
+          src: isVideo ? '' : url,
+          videoSrc: isVideo ? url : '',
+          title: `${title} (${idx + 1}/${mediaUrls.length})`,
+          category: category
+        };
+      });
+
+      currentGalleryIndex = 0;
+      updateLightbox();
+
+      if (lightbox) lightbox.classList.add('active');
+    });
+  });
+
+  if (lightboxPrev) {
+    lightboxPrev.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryItems.length) % currentGalleryItems.length;
+      updateLightbox();
+    });
+  }
+
+  if (lightboxNext) {
+    lightboxNext.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryItems.length;
+      updateLightbox();
+    });
+  }
 
   if (lightboxClose) {
     lightboxClose.addEventListener('click', () => {
@@ -598,7 +664,6 @@
   // ---------------------------------------------------------
   // 7. SERVICES SECTION SETTINGS
   // ---------------------------------------------------------
-  const serviceCards = document.querySelectorAll('.service-card');
 
   const updateServicesConfig = () => {
     serviceCards.forEach(card => {

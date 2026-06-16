@@ -78,6 +78,25 @@ class Elementor_GenZ_Services_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
+		$repeater->add_control(
+			'service_gallery',
+			[
+				'label' => esc_html__( 'Service Gallery Images', 'genz-portfolio-addon' ),
+				'type' => \Elementor\Controls_Manager::GALLERY,
+				'default' => [],
+			]
+		);
+
+		$repeater->add_control(
+			'service_videos',
+			[
+				'label' => esc_html__( 'Service Gallery Videos (Comma Separated)', 'genz-portfolio-addon' ),
+				'type' => \Elementor\Controls_Manager::TEXTAREA,
+				'rows' => 3,
+				'description' => esc_html__( 'Enter direct MP4 video URLs separated by commas.', 'genz-portfolio-addon' ),
+			]
+		);
+
 		$this->add_control(
 			'services_list',
 			[
@@ -98,10 +117,16 @@ class Elementor_GenZ_Services_Widget extends \Elementor\Widget_Base {
 						'service_icon_svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>'
 					],
 					[ 
-						'service_title' => 'DRONE SHOOTS', 
+						'service_title' => 'EDITING & POST', 
 						'service_num' => '03', 
-						'service_desc' => 'FPV acrobatics and high-altitude architectural views to add gravity-defying depth and scale to cinematic sequences.',
-						'service_icon_svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 17h20M2 12h20M2 7h20"/><path d="M6 3v18M18 3v18"/></svg>'
+						'service_desc' => 'Distortion overlays, glitch textures, custom color correction, and dynamic transitions to fit modern branding requirements.',
+						'service_icon_svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
+					],
+					[ 
+						'service_title' => 'BRAND STYLING', 
+						'service_num' => '04', 
+						'service_desc' => 'Complete visual direction to establish unique styling, layout pacing, and visual identities across platforms.',
+						'service_icon_svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"/><path d="M7 2v20M17 2v20M2 7h20M2 17h20"/></svg>'
 					]
 				],
 				'title_field' => '{{{ service_num }}}. {{{ service_title }}}',
@@ -172,8 +197,29 @@ class Elementor_GenZ_Services_Widget extends \Elementor\Widget_Base {
 			data-direction="<?php echo esc_attr( $settings['flood_direction'] ); ?>"
 			data-flood-color="<?php echo esc_attr( $settings['flood_color'] ); ?>">
 			
-			<?php foreach ( $settings['services_list'] as $item ) : ?>
-				<div class="wp-service-card">
+			<?php foreach ( $settings['services_list'] as $item ) : 
+				$media_urls = [];
+				if ( ! empty( $item['service_gallery'] ) ) {
+					foreach ( $item['service_gallery'] as $img ) {
+						if ( ! empty( $img['url'] ) ) {
+							$media_urls[] = esc_url( $img['url'] );
+						}
+					}
+				}
+				if ( ! empty( $item['service_videos'] ) ) {
+					$vids = array_map( 'trim', explode( ',', $item['service_videos'] ) );
+					foreach ( $vids as $vid ) {
+						if ( ! empty( $vid ) ) {
+							$media_urls[] = esc_url( $vid );
+						}
+					}
+				}
+				$media_str = implode( ',', $media_urls );
+			?>
+				<div class="wp-service-card service-card" 
+					data-gallery-title="<?php echo esc_attr( $item['service_title'] ); ?>"
+					data-gallery-cat="<?php echo esc_attr( $item['service_title'] ); ?>"
+					data-gallery-media="<?php echo esc_attr( $media_str ); ?>">
 					<div class="wp-service-flood-bg"></div>
 					<div class="wp-service-content">
 						<div class="service-header">
